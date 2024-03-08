@@ -143,7 +143,6 @@ function executeMain() {
   }
 
 
-
   var url = "http://101.201.33.155:8099/them/script/findAllThemWithOut";
   var r = http.get(url);
   var result = r.body.string();
@@ -219,6 +218,7 @@ function excuteAritcle(taskResult) {
     } else {
       content = getContentWithTitle(title, index);
     }
+    // test
 
 
     if (content === "false") {
