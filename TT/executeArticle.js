@@ -210,18 +210,38 @@ function executeMain() {
   let titleArticle = taskArr.articleTitle
   let contentArticle = taskArr.articleContent
 
-  console.warn(".........【 开始发送发布文章内容 】.............");
-  try {
-    const flag= excuteArticle(titleArticle,contentArticle);
-    if(!flag){
-      console.error("执行发送文章的脚本出现错误,无法执行回调")
+  //
+  console.warn(".........【 根据标题内容执行:微头条还是发布文章:titleArticle 】.............",titleArticle);
+
+  if(titleArticle.length>0){
+    console.warn(".........【 开始发送发布微头条内容 】.............");
+    try {
+      const flag= excuteShortArticle(titleArticle,contentArticle);
+      if(!flag){
+        console.error("执行发送文章的脚本出现错误,无法执行回调")
+        return;
+     }
+   
+    } catch (error) {
+      console.error(".........【 发布文章内容失败！】原因:",error);
       return;
-   }
- 
-  } catch (error) {
-    console.error(".........【 发布文章内容失败！】原因:",error);
-    return;
+    }
+  }else{
+    console.warn(".........【 开始发送发布文章内容 】.............");
+    console.warn(".........【 开始发送发布文章内容,标题 titleArticle 】.............",titleArticle);
+    try {
+      const flag= excuteLongArticle(titleArticle,contentArticle);
+      if(!flag){
+        console.error("执行发送文章的脚本出现错误,无法执行回调")
+        return;
+     }
+   
+    } catch (error) {
+      console.error(".........【 发布文章内容失败！】原因:",error);
+      return;
+    }
   }
+
 
 
   //【   更新回调   】
@@ -243,9 +263,9 @@ function executeMain() {
 
 
 
-/*************************************  [执行脚本] ******************************************************/
+/*************************************  [执行发布微头条脚本] ******************************************************/
 
-function excuteArticle(title, content) {
+function excuteShortArticle(title, content) {
 
       console.info('..... [ 清除后台所有应用 ] ........');
       clearApp()
@@ -492,6 +512,267 @@ function excuteArticle(title, content) {
 
       return true;
 }
+
+
+/*************************************  [执行发布 文章  脚本] ******************************************************/
+
+function excuteLongArticle(title, content) {
+
+  console.info('..... [ 清除后台所有应用 ] ........');
+  clearApp()
+
+  sleep(8000);
+  console.info('..... [  打开今日头条 ] ........');
+  launchApp("今日头条");
+
+
+  console.info('..... [  打开首页 ] ........');
+  sleep(3000);
+  click("首页");
+
+
+sleep(8000);
+ if(className("android.widget.Button").text("取消").exists()){
+    console.warn('..... [  界面出现了有未成的编辑的提示词 ] ........');
+    let unfinish_page_obj= text("取消").depth(5).findOne(1000);
+    unfinish_page_obj.click()
+  }
+
+
+  if(text("升级版本").depth(6).exists()){
+    console.warn('..... [  界面出现了软件升级提示词 ] ........');
+    let unfinish_page_obj= desc("关闭").depth(6).findOne(1000);
+    unfinish_page_obj.click()
+  }
+
+
+
+  console.info('..... [  点击 [我的]  ] ........');
+  sleep(3000);
+  click("我的");
+
+
+  sleep(3000);
+  if(!text("创作中心").depth(22).exists()){
+    console.error('..... [ 打开 [我的] 页面失败 ] ........');
+    return;
+  }
+
+
+
+  console.info('..... [  点击 [去发文]  ] ........');
+  sleep(4000);
+  if (className("android.widget.TextView").desc("去发文").exists()) {
+     click("去发文");
+  } else {
+    className("android.widget.ImageView").desc("发布").find().forEach(function (item, value) {
+      item.click()
+    });
+  }
+  
+
+  
+  sleep(4000);
+  if(!text("图片智能配文").depth(20).exists()){
+    console.error('..... [ 打开 [去发文] 页面失败 ] ........');
+    throw(" ..... [ 打开 [去发文] 页面失败 ] ........")
+  }
+
+
+  //点击【文章】tab 页面
+  sleep(4000);
+  let _long_article_tab = className('android.widget.FameLayout').depth(10).findOne(1000);
+  _long_article_tab.click();
+
+  
+  
+  // 找到对应的控件消息
+  console.info("....把内容写入编辑区......");
+  sleep(4000);
+  let inputCmpObj = className('EditText').depth(19).findOne(1000);
+  inputCmpObj.click();
+  sleep(5000);
+  inputCmpObj.setText(content);
+
+
+  console.info("开始打开相册，选择相册")
+  sleep(5000);
+  let open_pic_btn_cmp = desc('相册').depth(20).findOne(1000);
+  open_pic_btn_cmp.click();
+
+  console.info("------- [ 开始打开相册，选择相册,滑动相册 ] --------")
+  sleep(4000);
+
+  // 设置滑动起始点和终点的坐标
+
+  //let num = Math.random().toFixed(1);
+  var num = (Math.random() * 0.99 + 0.01).toFixed(2);
+  console.log("--------[随机数生成]--------" + num);
+  let y2 = num
+  sleep(3000);
+  swipe(device.width / 2, device.height * y2, device.width / 2, y2, 1000);
+  // sleep(1000);
+  // swipe(device.width / 2, device.height * 0.8, device.width / 2, y2, 1000);
+  // 选中照片
+  sleep(2000);
+  var randomInts = [];
+  while (randomInts.length < 1) {
+    var randomInt = Math.floor(Math.random() * 30) + 1;
+    if (randomInts.indexOf(randomInt) === -1) {
+        randomInts.push(randomInt);
+    }
+  }
+
+
+  let destionArr=[]
+  const flag=false
+  desc('未选中').depth(15).find().forEach(function (value, index) {
+    destionArr.push(index)
+    if (randomInts.includes(index)) {
+        value.click();
+        flag=true;
+    }
+  });
+
+  console.log('.....destionArr......',destionArr);
+  console.log('.....randomInts......',randomInts);
+
+
+  // if(!flag){
+  //   const randomNumber = Math.floor(Math.random() * 30);
+  //   console.log(randomNumber);
+  //   desc('未选中').depth(15).find().forEach(function (value, index) {
+  //     if (randomNumber===index) {
+  //         value.click();
+  //     }
+  //   });
+  // }
+
+
+
+
+  sleep(1500);
+  console.info("------- [ 选择图片,开始点击确认 ] --------")
+  className('Button').find().forEach(function (value, index) {
+    let d = value.desc();
+    if (d.includes("完成")) {
+      value.click();
+    }
+  })
+
+
+
+
+  console.info("------- [  推荐语 ] --------")
+  sleep(4000)
+  className('android.widget.FrameLayout').depth(20).find().forEach(function (value, index) {
+    sleep(500)
+    value.click();
+    sleep(500)
+  })
+
+
+  // 添加位置
+  console.info("------- [  添加地址 ] --------")
+  sleep(6000);
+  const addressObj=desc("添加位置").className('android.widget.Button').depth(20).findOne(1000);
+  addressObj.click();
+
+
+
+  sleep(2000);
+
+  console.info("------- [  添加地址，选择位置参数 ] --------")  
+
+  let add_address_counter=0
+
+  while(add_address_counter<30){
+    
+     add_address_counter++;
+    
+     let add_adress_list_obj_arr=[]
+
+     add_adress_list_obj_arr=className('android.widget.RelativeLayout').depth(10).find();
+     console.info("------- [  选择添加地址参数列表数组大小： ] --------",add_adress_list_obj_arr.length)
+
+
+     // 验证值是否大于7的时候。
+     console.info("------- [  开始选择添加地址,次数: ] --------",add_address_counter)
+     if(add_adress_list_obj_arr.length > 1){
+         var randomIndex = Math.floor(Math.random() * 7);
+         console.info("------- [  选择添加地址参数： ] --------",randomIndex)
+         className('android.widget.RelativeLayout').depth(10).find().forEach(function (currentItem, index) {
+            if (index == randomIndex) {
+                currentItem.click();
+            }
+         })
+         break;
+    }
+    // 休息2秒
+    sleep(2000)
+  }
+  
+
+  // 如果超过30个选择默认
+  if(add_address_counter>=30){
+  console.info("------- [  添加默认地址参数 ] --------")  
+  className('android.widget.RelativeLayout').depth(10).find().forEach(function (currentItem, index) {
+    currentItem.click();;
+  })
+  }
+
+  // className('android.widget.RelativeLayout').depth(10).find().forEach(function (currentItem, index) {
+  //   if (index == randomIndex) {
+  //        currentItem.click();;
+  //   }
+  // })
+
+
+
+
+  console.info("------- [ 再次 推荐语 ] --------")
+  sleep(4000)
+  className('android.widget.FrameLayout').depth(20).find().forEach(function (value, index) {
+    sleep(500)
+    value.click();
+    sleep(500)
+  })
+
+
+  if(title.length<19){
+    console.info("------- [  添加标题 ] --------")
+    sleep(3000)
+    className('android.widget.Button').depth(20).find().forEach(function (currentItem, index) {
+      if (currentItem.desc() == "添加标题") {
+        currentItem.click();
+        // 进入地址选择页面
+        sleep(1000);
+        className('android.widget.EditText').depth(19).find().forEach(function (Item, index) {
+          if (Item.text() == "填写标题会有更多赞哦（选填）") {
+            Item.setText(title);
+          }
+        })
+      }
+    })
+  }else{
+    console.error("....【 标题超过了19个字 】.....",title);
+  }
+
+
+  //选择完图片后，进行发布
+  console.info("-------  点击 [  发布 ]  按钮[发布中...]--------")
+ // text("发布").depth(14).findOne().click();
+  text("发布").findOne().click();
+
+  // console.info("-------  [准备开始下篇文章]---------------------")
+
+  return true;
+}
+
+
+
+
+
 
 
 function clearApp() {

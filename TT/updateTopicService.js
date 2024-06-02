@@ -219,25 +219,6 @@ function executeMain() {
   }
 
 
- 
-
-
-
-  // // 更新 them的状态
-  // let themId = resObj.id
-  // var url2 = `http://101.201.33.155:8099/them/script/updateThemStatus/${themId}`;
-  // console.info('.....[   开始回调接口    ]........');
-
-  // var updateStatusRes = http.postJson(url2);
-
-  // let contentCallBack = JSON.parse(updateStatusRes.body.string());
-
-  // console.info('.....[   开始回调them接口结果,返回值  ]........', contentCallBack);
-
-  // if (contentCallBack.code === 1) {
-  //   console.info('.....[   更新状态成功    ]........');
-  // }
-
 }
 
 

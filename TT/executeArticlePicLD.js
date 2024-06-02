@@ -322,26 +322,6 @@ function executeMain() {
     return;
   }
 
-    //  删除手机里面久的图片 
-    // var delFlag= delBeforImg()
-    // if(delFlag){
-    //     console.log('......[   删除旧的图片成功    ]..........');
-    // }
-
-  //   let titleArticleImg  = [
-  //     "http://101.201.33.155/ymystatic/img/微信图片_20240223155951.jpg",
-  //     "http://101.201.33.155/ymystatic/img/微信图片_20240223155951.jpg",
-  //     "http://101.201.33.155/ymystatic/img/微信图片_20240223155951.jpg",
-  //     "http://101.201.33.155/ymystatic/img/微信图片_20240223155933.jpg"
-  //   ]
-  
-  //     //  保存图片到相册
-  //  for(let i=0;i<titleArticleImg.length;i++){
-  //       saveImg(titleArticleImg[i])
-  //     }
-  
-
-
 
   var url = `http://101.201.33.155:8099/article/script/execute/findOneArticle/${deviceId}`;
 
@@ -363,9 +343,9 @@ function executeMain() {
      titleArticleImg  = taskArr.imgList
 
   //  删除手机里面久的图片 
-  var flag= delBeforImg()
-  if(flag){
-    console.log('......[   删除旧的图片成功    ]..........', contentCallBack);
+  var delflag= delBeforImg()
+  if(delflag){
+    console.log('......[   删除旧的图片成功    ]..........');
   }
 
   //  保存图片到相册
@@ -378,7 +358,7 @@ function executeMain() {
   let titleArticle = taskArr.articleTitle
   let contentArticle = taskArr.articleContent
 
-  console.warn(".........【 开始发送发布文章内容 】.............");
+  console.warn(".........【 开始发送发布文章内容:titleArticle 】.............",titleArticle);
   try {
     const flag= excuteArticle(titleArticle,contentArticle);
     if(!flag){
@@ -423,7 +403,7 @@ function excuteArticle(title, content) {
 
       console.info('..... [  打开首页 ] ........');
       sleep(3000);
-      click("首页");
+      click("头条");
 
 
     sleep(8000);
@@ -446,12 +426,12 @@ function excuteArticle(title, content) {
       sleep(3000);
       click("我的");
     
-
-      sleep(3000);
+ 
+  /*     sleep(3000);
       if(!text("创作中心").depth(22).exists()){
         console.error('..... [ 打开 [我的] 页面失败 ] ........');
         return;
-      }
+      } */
    
 
 
@@ -493,68 +473,38 @@ function excuteArticle(title, content) {
       console.info("------- [ 开始打开相册，选择相册,滑动相册 ] --------")
       sleep(4000);
 
-      // 设置滑动起始点和终点的坐标
-
-      //let num = Math.random().toFixed(1);
-      var num = (Math.random() * 0.99 + 0.01).toFixed(2);
-      console.log("--------[随机数生成]--------" + num);
-      let y2 = num
-      sleep(3000);
-      swipe(device.width / 2, device.height * y2, device.width / 2, y2, 1000);
-      // sleep(1000);
-      // swipe(device.width / 2, device.height * 0.8, device.width / 2, y2, 1000);
-      // 选中照片
-      sleep(2000);
-      var randomInts = [];
-      while (randomInts.length < 1) {
-        var randomInt = Math.floor(Math.random() * 30) + 1;
-        if (randomInts.indexOf(randomInt) === -1) {
-            randomInts.push(randomInt);
-        }
-      }
-
-
-      // let destionArr=[]
-      // const flag=false
-      // desc('未选中').depth(15).find().forEach(function (value, index) {
-      //   destionArr.push(index)
-      //   if (randomInts.includes(index)) {
-      //       value.click();
-      //       flag=true;
-      //   }
-      // });
-
+     
       // 全都选
       desc('未选中').depth(15).find().forEach(function (value, index) {
-        value.click();
+         value.click();
       });
 
 
-      console.log('.....destionArr......',destionArr);
-      console.log('.....randomInts......',randomInts);
-
-
-      // if(!flag){
-      //   const randomNumber = Math.floor(Math.random() * 30);
-      //   console.log(randomNumber);
-      //   desc('未选中').depth(15).find().forEach(function (value, index) {
-      //     if (randomNumber===index) {
-      //         value.click();
-      //     }
-      //   });
-      // }
-
-
-
-
+      // TODO:  2024年4月1号有版本变动
+      // 旧版本
       sleep(1500);
+      let finish_Flag=false
       console.info("------- [ 选择图片,开始点击确认 ] --------")
       className('Button').find().forEach(function (value, index) {
         let d = value.desc();
         if (d.includes("完成")) {
-             value.click();
+            value.click();
+            finish_Flag=true
         }
       })
+ 
+      // 新版本
+      console.info("------- [ 选择图片新版本的要求 ] --------,",finish_Flag)
+      if(!finish_Flag){
+       // 
+       let finsh_btn= className('android.widget.LinearLayout').depth(14).indexInParent(1).findOne(1000)
+       finsh_btn.click()
+       
+        // 
+      //  let finsh_detail_btn= text("完成").depth(12).indexInParent(2).findOne(1000)
+      //  finsh_detail_btn.click()
+      }
+
 
 
 
@@ -576,7 +526,7 @@ function excuteArticle(title, content) {
 
 
 
-      sleep(2000);
+      sleep(5000);
 
       console.info("------- [  添加地址，选择位置参数 ] --------")  
     
@@ -589,12 +539,12 @@ function excuteArticle(title, content) {
          let add_adress_list_obj_arr=[]
 
          add_adress_list_obj_arr=className('android.widget.RelativeLayout').depth(10).find();
-         console.info("------- [  选择添加地址参数列表数组大小： ] --------",add_adress_list_obj_arr.length)
+         console.info("------- [  选择添加地址参数列表数组大小: ] --------",add_adress_list_obj_arr.length)
     
 
          // 验证值是否大于7的时候。
          console.info("------- [  开始选择添加地址,次数: ] --------",add_address_counter)
-         if(add_adress_list_obj_arr.length > 1){
+         if(add_adress_list_obj_arr.length > 2){
              var randomIndex = Math.floor(Math.random() * 7);
              console.info("------- [  选择添加地址参数： ] --------",randomIndex)
              className('android.widget.RelativeLayout').depth(10).find().forEach(function (currentItem, index) {
@@ -604,10 +554,19 @@ function excuteArticle(title, content) {
              })
              break;
         }
+        if(add_adress_list_obj_arr.length === 2){
+          console.info("------- [  选择添加地址参数： ] --------",randomIndex)
+          className('android.widget.RelativeLayout').depth(10).find().forEach(function (currentItem, index) {
+                 currentItem.click();
+          })
+          break;
+     }
         // 休息2秒
         sleep(2000)
       }
       
+
+
 
       // 如果超过30个选择默认
       if(add_address_counter>=30){
@@ -623,20 +582,10 @@ function excuteArticle(title, content) {
       //   }
       // })
 
-
-
-
-      console.info("------- [ 再次 推荐语 ] --------")
-      sleep(4000)
-      className('android.widget.FrameLayout').depth(20).find().forEach(function (value, index) {
-        sleep(500)
-        value.click();
-        sleep(500)
-      })
-
-
-      if(title.length<19){
-        console.info("------- [  添加标题 ] --------")
+      sleep(3000)
+      console.info("------- [  添加标题 : title ] --------",title)  
+      if(title !== null &&title.length>0 && title.length<19){
+        console.info("------- [ 进入添加标题 ] --------")  
         sleep(3000)
         className('android.widget.Button').depth(20).find().forEach(function (currentItem, index) {
           if (currentItem.desc() == "添加标题") {
@@ -653,14 +602,28 @@ function excuteArticle(title, content) {
       }else{
         console.error("....【 标题超过了19个字 】.....",title);
       }
+      
+
+
+
+      console.info("------- [ 再次 推荐语 ] --------")
+      sleep(4000)
+      className('android.widget.FrameLayout').depth(20).find().forEach(function (value, index) {
+        sleep(500)
+        value.click();
+        sleep(500)
+      })
+
+
+
+  
 
 
       //选择完图片后，进行发布
+      sleep(3000)
       console.info("-------  点击 [  发布 ]  按钮[发布中...]--------")
      // text("发布").depth(14).findOne().click();
       text("发布").findOne().click();
-
-      // console.info("-------  [准备开始下篇文章]---------------------")
 
       return true;
 }
@@ -674,8 +637,8 @@ function clearApp() {
 
 
 
-  if(desc("关闭所有最近打开的应用").depth(6).exists()){
-    let _clear_box =  desc("关闭所有最近打开的应用").depth(6).findOne(1000)
+  if(desc("清除").depth(7).exists()){
+    let _clear_box =  desc("清除").depth(7).findOne(1000)
     _clear_box.click();
   }else{
       let _clear_box = id("clearbox").depth(7).findOne(); 

@@ -5,18 +5,11 @@ console.hide();
 threads.start(setIntervalTask);
 
 //log info warn  error ，全局模式方案
-var gloabModalType = false;
-
 
 function showLoalTask() {
-
   ui.layout(
     <frame>
       <vertical h="auto" marginTop="20">
-        <linear marginLeft="35" marginTop="35">
-          <text w="150" h="50" textSize="16ps" >是否自动模式:</text>
-          <switch id="model_switch" checked="false" thumbTint="gray/orange-800" trackTint="light-gray/orange-200" marginEnd="16"></switch>
-        </linear>
         <linear marginTop="30">
           <button id="them_to_article_btn" bg="#8acfaa" text="生成文章" marginLeft="35" h="38" />
           <button id="clearn_localstorage_btn" bg="#ffe63d" text="清除本地缓存" marginLeft="15" h="38" />
@@ -74,20 +67,6 @@ function showLoalTask() {
     console.setPosition(70, 100);
 
   });
-
-
-
-  // 【选择模式】
-  ui.model_switch.on("check", function (checked) {
-    if (checked) {
-      toast("开关已打开");
-      gloabModalType = true;
-    } else {
-      toast("开关已关闭");
-      gloabModalType = false;
-    }
-  });
-
 
 
 
@@ -202,29 +181,24 @@ function excuteAritcle(taskResult) {
 
   for (let index = 1; index < Number(articleNum) + 1; index++) {
 
-    let title = them
+    let titleTmp = articleTitleTemplate
+    let newTitle
 
-
-    if (gloabModalType) {
-      title = setTitleRich(them, index)
-      if (title === "false") {
-        console.error(".... 获取[标题]错误.......");
-        continue;
-      }
+    console.log(".... 带标题标志: { articleTitleStatus:===} .......",Number(articleTitleStatus) === 1);
+    console.log(".... 带标题标志: { articleTitleStatus:} .......",articleTitleStatus);
+    if(Number(articleTitleStatus) === 1){  // 1-带标题   0-不带标题
+        console.log(".... 带标题.......");
+        newTitle = setTitleRich(titleTmp, index)
+    }else{
+        console.log(".... 不带标题.......");
+        newTitle=null
     }
 
-    sleep(5000)
 
-    let content
-    console.log('.....gloabModalType......',gloabModalType);
-    if (gloabModalType) {
-      content = getContentGPT(them, index);
-    //  content = getContentWithThem(them, index);
-    } else {
-      content = getContentGPT(title, index);
-    //  content = getContentWithTitle(title, index);
-    }
     // test
+    let content
+    console.log('.....them:{} ......',them);
+    content = getContentWithTitle(them, index);
 
 
     if (content === "false") {
@@ -239,7 +213,7 @@ function excuteAritcle(taskResult) {
     // 插入article表
     let articleVo = {}
     articleVo.articleThem = them;
-    articleVo.articleTitle = title
+    articleVo.articleTitle = newTitle
     articleVo.articleContent = content
     articleVo.uid = uid
     articleVo.deviceId = deviceId
@@ -248,8 +222,8 @@ function excuteAritcle(taskResult) {
     // TODO:  在当前的时间里面:往后相加10分钟
      let newArticleSendTime = nextDateUtil(index,articleSendTime);
     console.log('.....newArticleSendTime......', newArticleSendTime);
+
     articleVo.articleSendTime = newArticleSendTime
-   // articleVo.articleSendTime = articleSendTime
     articleVo.articleNum = 1
     articleVo.status = 0
     articleVo.createTime = createTime
@@ -275,150 +249,6 @@ function excuteAritcle(taskResult) {
 }
 
 
-// 【 ............................................ 【最新的】..................................... 】
-function getContentGPT(title, index){
-
-  console.info('..... [ 开始生成 第[' + index + '] 个内容 .......');
-
-  sleep(2000);
-  console.info('.....[ 清除后台其他APP  ] ........');
-  clearApp()
-  
-  
-  sleep(2000);
-  console.info('.....[打开 [ Aichatos APP  ] ........');
-  
-  launchApp("aichatos");
-  
-  
-  sleep(8000);
-  console.info('.....[删除之前的对话 [  弹出对话框  ] ........');
-  let del_btn= className("android.view.View").depth(19).indexInParent(7).findOne()
-  del_btn.click()
-  
-  
-  sleep(4000);
-  console.info('.....[删除之前的对话  [  点击确认  ] ........');
-  // let del_confirm_btn=text("删除").depth(20).indexInParent(2).findOne();
-  let del_confirm_btn=className("android.widget.Button").depth(20).indexInParent(2).childCount(0).findOne()
-  //console.log('.....del_confirm_btn......',del_confirm_btn);
-  del_confirm_btn.click()
-  let del_confirm_btn_bounds=del_confirm_btn.bounds()
-  var x = del_confirm_btn_bounds.centerX();
-  var y = del_confirm_btn_bounds.centerY();
-  click(x, y);
-
-  
-  
-  sleep(3000);
-  console.info('.....[ 关闭关联上下文1               ] ........');
-  let close_comtent_model= className("android.view.View").depth(19).indexInParent(8).findOne();
-  let modelText=close_comtent_model.getText()
-  if( modelText==="关闭关联上下文"){
-      close_comtent_model.click();
-  }
-  
-  
-  sleep(3000);
-  console.info('.....[ 设置好提问的问题 ] ........');
-  let input_edit_text_obj= className("android.widget.EditText").depth(21).indexInParent(0).findOne()
-  input_edit_text_obj.click()
-  sleep(2000);
-  //input_edit_text_obj.setText("亲爱的哥哥，我想跟你说说我心里话，我会一直等你的，等你出现在我的生活中，走向幸福的彼岸。根据这句话的内容，以这句话作为开头并且换行，语言口语化。根据这句话，以第一人称的口吻，假设你是一31岁单身女性的角色，写一篇800字的短文，要求以第一人称的口吻，语言通俗易懂,段落清晰,语言口语化。");
-  input_edit_text_obj.setText(title)
-  
-  sleep(2000);
-  console.info('.....[ 输入问题后，点击  [提交按钮]   ] ........');
-  let input_edit_send_btn= className("android.widget.Button").depth(19).indexInParent(9).findOne()
-  input_edit_send_btn.click()
-    
-  
-  
-    //查找搜索结果列表并输出内容 ， // --> 小心一瞬间的操作
-    sleep(3000)
-    console.info('.....[  获取文章的内容开始  ] ->........',formateDateUtil());
-    let arr = []
-    let counter = 0;
-    var content = "";
-    while (counter < 60) {
-      counter++;
-      sleep(5000)
-      if (!className("android.widget.Button").text('停止生成').exists()) {
-        className("android.view.View").depth(23).find().forEach(function (currentItem, index) {
-          let itemContent = currentItem.text();
-          arr.push(itemContent)
-        });
-        //console.log('.....arr  检查是否有换行......',arr);
-        // 处理结果
-        for (let i = 0; i < arr.length; i++) {
-              if(i==0){
-                  content += arr[i]+"\n"+"\n";
-              }else{
-                  content += "\n"+arr[i]+"\n";
-              }
-        }
-        console.log('...................[内容:].........................');
-        console.log(content);
-        // 加载完
-        break;
-      }
-
-      if (className("android.widget.Button").text('停止生成').exists()) {
-        console.log(".....[ 加载中 ] .......[",counter+" ].......");
-        sleep(3000)
-      }
-
-      // 发生错误了
-      if (textStartsWith("Something went wrong").depth(28).exists()) {
-         return "false";
-      }
-  
-      // 超时
-      if (counter > 60) {
-         return "false";
-      }
-    }
-  
- console.log("....获取chatGPT的内容......结束时间:....", formateDateUtil());
-
-// 检查content
-
-if (content.indexOf("Ai") !== -1) {
-  console.error("ChatGPT 内容获取获取失败,内容带有 [AI [字样")
-  return "false";
-}
-
-if (content.indexOf("机器人") !== -1) {
-  console.error("ChatGPT 内容获取获取失败,内容带有 [机器人[] 字样")
-  return "false";
-}
-
-if (content.indexOf("抱歉我无法满足你的要求") !== -1) {
-  console.error("ChatGPT 内容获取获取失败,内容带有 [ 抱歉我无法满足你的要求 ] 字样")
-  return "false";
-}
-
-
-if (content.indexOf("Something went wrong, please try again later.") !== -1) {
-  console.error("ChatGPT 内容获取获取失败,内容带有 [   Something went wrong, please try again later. ] 字样")
-  return "false";
-}
-
-
-if (content === "") {
-    return "false"
-} else {
-   return content
-}
-  
-  
-  
-  
-}
-
-
-
-
 
 // 【 ............................................ 【获取内容】..................................... 】
 function getContentWithTitle(title, index) {
@@ -431,17 +261,6 @@ function getContentWithTitle(title, index) {
     action: "android.intent.action.VIEW",
     data: "https://chat18.aichatos.xyz/"
   });
-
-
-    // 打开网址，不要联想其他的语句，保持问题单纯
-    sleep(1000 * 2);
-    console.info('..... [ 打开纯净模式 ].......');
-    var not_carry_pre_btn = className("android.widget.Button").depth(26).indexInParent(2).childCount(0).findOne();
-    not_carry_pre_btn.click();
-    sleep(1000 * 6);
-
-    
-
 
   // 等待浏览器加载完成
   sleep(1000 * 6);
@@ -546,122 +365,8 @@ function getContentWithTitle(title, index) {
 
 
 
-
-function getContentWithThem(title, index) {
-
-  console.info('..... [ 获取内容，填入内容，访问网址 ,开始生成 第[' + index + '] 个.......');
-
-  var content = "";
-  // 打开页面
-  app.startActivity({
-    action: "android.intent.action.VIEW",
-    data: "https://chat18.aichatos.xyz/"
-  });
-
-  // 等待浏览器加载完成
-  sleep(1000 * 6);
-
-  // 查找搜索框并输入关键字
-  console.info('..... [ 获取内容，填入内容，访问网址,开始获取,[' + index + '].......');
-  var searchBox = className("android.widget.EditText").depth(28).findOne();
-  searchBox.click();
-  sleep(1000);
-  //searchBox.setText("以"+ title +"为标题写一篇300字的短文，要求内容吸引人眼球，正能量,不要带有正文和标题的字样,开头换一行,并且空2格")
-  searchBox.setText(title)
-
-
-  sleep(1000);
-  console.info('..... [  访问网址，填入问题, 点击发送 ] ........');
-  className("android.widget.Button").find().forEach(function (value, index) {
-    if (value.depth() == 25) {
-      if (value.indexInParent() == 3) {
-        value.click()
-      }
-    }
-  })
-
-  // 查找搜索结果列表并输出内容 ， // --> 小心一瞬间的操作
-  sleep(3000)
-  let arr = []
-  let counter = 0;
-  console.log("....获取chatGPT的内容.....开始时间:....", formateDateUtil());
-  while (counter < 60) {
-    counter++;
-    if (!text('Stop Responding').depth(28).exists()) {
-      className("android.widget.TextView").depth(29).find().forEach(function (currentItem, index) {
-        let itemContent = currentItem.text();
-        arr.push(itemContent)
-      });
-      
-      console.log('.....arr  检查是否有换行......',arr);
-
-      // 处理结果
-      for (let i = 4; i < arr.length; i++) {
-        content += arr[i];
-      }
-      // 加载完
-      break;
-    }
-    // 还在加载中...、
-    if (textStartsWith("Stop Responding").depth(28).exists()) {
-      console.log("加载中.......", counter);
-      sleep(3000)
-    }
-
-    // 发生错误了
-    if (textStartsWith("Something went wrong").depth(28).exists()) {
-      return "false";
-    }
-
-    // 超时
-    if (counter > 60) {
-      return "false";
-    }
-  }
-
-  console.log("....获取chatGPT的内容......结束时间:....", formateDateUtil());
-
-  // 检查content  很抱歉，我无法满足你的要求
-
-  if (content.indexOf("Ai") !== -1) {
-    console.error("ChatGPT 内容获取获取失败,内容带有 [AI [字样")
-    return "false";
-  }
-
-  if (content.indexOf("机器人") !== -1) {
-    console.error("ChatGPT 内容获取获取失败,内容带有 [机器人[] 字样")
-    return "false";
-  }
-
-  if (content.indexOf("很抱歉，我无法满足你的要求") !== -1) {
-    console.error("ChatGPT 内容获取获取失败,内容带有 [  很抱歉，我无法满足你的要求 ] 字样")
-    return "false";
-  }
-
-  if (content.indexOf("很抱歉，我无法满足你的要求") !== -1) {
-    console.error("ChatGPT 内容获取获取失败,内容带有 [ 抱歉我无法满足你的要求 ] 字样")
-    return "false";
-  }
-
-  if (content.indexOf("Sorry") !== -1) {
-    console.error("ChatGPT 内容获取获取失败,内容带有 [ Sorry ] 字样")
-    return "false";
-  }
-
-  // 双击退出
-  doubleExistApp()
-
-  if (content === "") {
-    return "false"
-  } else {
-    return content
-  }
-}
-
-
 // 【 ............................................. 【获取标题】........................................ 】
-function setTitleRich(title, index) {
-
+function setTitleRich(titleTmp, index) {
 
   console.info('..... [ 获取标题，，填入内容，访问网址 ,开始生成 第[' + index + '] 个.......');
 
@@ -672,13 +377,6 @@ function setTitleRich(title, index) {
   });
 
 
-  // 打开网址，不要联想其他的语句，保持问题单纯
-  console.info('..... [ 打开纯净模式 ].......');
-  var not_carry_pre_btn = className("android.widget.Button").depth(26).indexInParent(2).childCount(0).findOne();
-  not_carry_pre_btn.click();
-  sleep(1000 * 6);
-
-
   console.info('..... [ 获取标题，填入内容，访问网址,开始获取,[' + index + '].......');
 
   sleep(1000 * 6);
@@ -687,8 +385,7 @@ function setTitleRich(title, index) {
   sleep(1000);
 
 
-
-  searchBox.setText("把" + title + "这个标题润色一下,使得标题更加吸引人眼球，更加具体创新力，不超过14个字，要求标题不要带有双引号,不要带有:")
+  searchBox.setText(titleTmp)
 
 
   // // 点击搜索按钮并等待结果页面加载完成className('Button')
@@ -757,7 +454,7 @@ function setTitleRich(title, index) {
 
 
 
-// 【 ............................................. 【 工具类  】........................................ 】
+// 【 ............................................. 【 工具类: 日期格式  】........................................ 】
 function formateDateUtil() {
 
   let now = new Date(); // 获取当前的日期和时间
@@ -780,13 +477,19 @@ function formateDateUtil() {
 }
 
 
+
+// 【 ............................................. 【 工具类：随机生成日期  】........................................ 】
 function nextDateUtil(index,articleSendTime) {
  
 
   var isoFormatString = articleSendTime.replace(" ", "T");
   const now = new Date(isoFormatString); 
-
-  let addMinutes = 10 * index
+  //
+  // 生成1-20内的随机整数
+  let randomNumber = Math.floor(Math.random() * 20) + 1;
+  console.log('生成1-20内的随机整数:',randomNumber);
+  //
+  let addMinutes = randomNumber * index
   let year =   now.getFullYear(); 
   let month =  now.getMonth() + 1; 
   let day =    now.getDate();
@@ -808,6 +511,7 @@ function nextDateUtil(index,articleSendTime) {
 
 
 
+// 【 ............................................. 【 退出  】........................................ 】
 function doubleExistApp() {
 
   back()

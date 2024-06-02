@@ -358,37 +358,18 @@ function executeMain() {
   let titleArticle = taskArr.articleTitle
   let contentArticle = taskArr.articleContent
 
-    //
-    console.warn(".........【 根据标题内容执行:微头条还是发布文章:titleArticle 】.............",titleArticle);
-
-    if(titleArticle.length>0){
-      console.warn(".........【 开始发送发布微头条内容 】.............");
-      try {
-        const flag= excuteShortArticle(titleArticle,contentArticle);
-        if(!flag){
-          console.error("执行发送文章的脚本出现错误,无法执行回调")
-          return;
-       }
-     
-      } catch (error) {
-        console.error(".........【 发布文章内容失败！】原因:",error);
-        return;
-      }
-    }else{
-      console.warn(".........【 开始发送发布文章内容 】.............");
-      console.warn(".........【 开始发送发布文章内容,标题 titleArticle 】.............",titleArticle);
-      try {
-        const flag= excuteLongArticle(titleArticle,contentArticle);
-        if(!flag){
-          console.error("执行发送文章的脚本出现错误,无法执行回调")
-          return;
-       }
-     
-      } catch (error) {
-        console.error(".........【 发布文章内容失败！】原因:",error);
-        return;
-      }
-    }
+  console.warn(".........【 开始发送发布文章内容:titleArticle 】.............",titleArticle);
+  try {
+    const flag= excuteArticle(titleArticle,contentArticle);
+    if(!flag){
+      console.error("执行发送文章的脚本出现错误,无法执行回调")
+      return;
+   }
+ 
+  } catch (error) {
+    console.error(".........【 发布文章内容失败！】原因:",error);
+    return;
+  }
 
 
   //【   更新回调   】
@@ -403,14 +384,13 @@ function executeMain() {
   if(contentCallBack.code===1){
     console.info('.....[   更新状态成功    ]........');
   }
-
 }
 
 
 
-/*************************************  [执行 微头条 脚本] ******************************************************/
+/*************************************  [执行脚本] ******************************************************/
 
-function excuteShortArticle(title, content) {
+function excuteArticle(title, content) {
 
       console.info('..... [ 清除后台所有应用 ] ........');
       clearApp()
@@ -420,10 +400,13 @@ function excuteShortArticle(title, content) {
       launchApp("今日头条");
 
 
-      console.info('..... [  打开首页 ] ........');
-      sleep(3000);
-      click("首页");
-
+      console.info('..... [  打开头条 ] ........');
+      sleep(8000);
+    //  let tt_tab_obj= className("android.widget.RelativeLayout").depth(9).indexInParent(0).childCount(1).findOne(1000)
+      //tt_tab_obj.click()
+    // click("头条");
+     let tt_tab_obj =className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(9).indexInParent(0).childCount(1).findOne(1000);
+     tt_tab_obj.click();
 
     sleep(8000);
      if(className("android.widget.Button").text("取消").exists()){
@@ -441,9 +424,11 @@ function excuteShortArticle(title, content) {
 
  
 
-      console.info('..... [  点击 [我的]  ] ........');
-      sleep(3000);
-      click("我的");
+      let me_tab_obj =className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(9).indexInParent(3).childCount(2).findOne(1000);
+      me_tab_obj.click();
+      //console.info('..... [  点击 [我的]  ] ........');
+      //sleep(10000);
+     // click("我的");
     
 
       sleep(3000);
@@ -466,11 +451,11 @@ function excuteShortArticle(title, content) {
       
 
       
-      sleep(4000);
-      if(!text("图片智能配文").depth(20).exists()){
-        console.error('..... [ 打开 [去发文] 页面失败 ] ........');
-        throw(" ..... [ 打开 [去发文] 页面失败 ] ........")
-      }
+      // sleep(4000);
+      // if(!text("图片智能配文").depth(20).exists()){
+      //   console.error('..... [ 打开 [去发文] 页面失败 ] ........');
+      //   throw(" ..... [ 打开 [去发文] 页面失败 ] ........")
+      // }
 
 
 
@@ -478,7 +463,8 @@ function excuteShortArticle(title, content) {
       // 找到对应的控件消息
       console.info("....把内容写入编辑区......");
       sleep(4000);
-      let inputCmpObj = className('EditText').depth(19).findOne(1000);
+      //let inputCmpObj = className('EditText').depth(19).findOne(1000);
+      let inputCmpObj = className('EditText').depth(20).findOne(1000);
       inputCmpObj.click();
       sleep(5000);
       inputCmpObj.setText(content);
@@ -486,7 +472,7 @@ function excuteShortArticle(title, content) {
 
       console.info("开始打开相册，选择相册")
       sleep(5000);
-      let open_pic_btn_cmp = desc('相册').depth(20).findOne(1000);
+      let open_pic_btn_cmp = desc('相册').depth(21).findOne(1000);
       open_pic_btn_cmp.click();
 
       console.info("------- [ 开始打开相册，选择相册,滑动相册 ] --------")
@@ -499,20 +485,38 @@ function excuteShortArticle(title, content) {
       });
 
 
+      // TODO:  2024年4月1号有版本变动
+      // 旧版本
       sleep(1500);
+      let finish_Flag=false
       console.info("------- [ 选择图片,开始点击确认 ] --------")
       className('Button').find().forEach(function (value, index) {
         let d = value.desc();
         if (d.includes("完成")) {
-             value.click();
+            value.click();
+            finish_Flag=true
         }
       })
+ 
+      // 新版本
+      console.info("------- [ 选择图片新版本的要求 ] --------,",finish_Flag)
+      if(!finish_Flag){
+       // 
+       let finsh_btn= className('android.widget.LinearLayout').depth(14).indexInParent(1).findOne(1000)
+       finsh_btn.click()
+       
+        // 
+      //  let finsh_detail_btn= text("完成").depth(12).indexInParent(2).findOne(1000)
+      //  finsh_detail_btn.click()
+      }
+
+
 
 
     
       console.info("------- [  推荐语 ] --------")
       sleep(4000)
-      className('android.widget.FrameLayout').depth(20).find().forEach(function (value, index) {
+      className('android.widget.FrameLayout').depth(21).find().forEach(function (value, index) {
         sleep(500)
         value.click();
         sleep(500)
@@ -522,7 +526,7 @@ function excuteShortArticle(title, content) {
       // 添加位置
       console.info("------- [  添加地址 ] --------")
       sleep(6000);
-      const addressObj=desc("添加位置").className('android.widget.Button').depth(20).findOne(1000);
+      const addressObj=desc("添加位置").className('android.widget.Button').depth(21).findOne(1000);
       addressObj.click();
 
 
@@ -540,16 +544,20 @@ function excuteShortArticle(title, content) {
          let add_adress_list_obj_arr=[]
 
          add_adress_list_obj_arr=className('android.widget.RelativeLayout').depth(10).find();
+      //   add_adress_list_obj_arr=className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(10).find();
          console.info("------- [  选择添加地址参数列表数组大小: ] --------",add_adress_list_obj_arr.length)
     
 
          // 验证值是否大于7的时候。
          console.info("------- [  开始选择添加地址,次数: ] --------",add_address_counter)
          if(add_adress_list_obj_arr.length > 2){
-             var randomIndex = Math.floor(Math.random() * 7);
+             var randomIndex = Math.floor(Math.random()*(7-1)+1);
              console.info("------- [  选择添加地址参数： ] --------",randomIndex)
-             className('android.widget.RelativeLayout').depth(10).find().forEach(function (currentItem, index) {
-                if (index == randomIndex) {
+            // className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(10).find().forEach(function (currentItem, index) {
+             className('android.widget.RelativeLayout').depth(10).childCount(2).find().forEach(function (currentItem, index) {
+              console.log('.....item......',index);
+              console.log('.....randomIndex......',randomIndex);
+              if (index == randomIndex) {
                     currentItem.click();
                 }
              })
@@ -557,7 +565,8 @@ function excuteShortArticle(title, content) {
         }
         if(add_adress_list_obj_arr.length === 2){
           console.info("------- [  选择添加地址参数： ] --------",randomIndex)
-          className('android.widget.RelativeLayout').depth(10).find().forEach(function (currentItem, index) {
+         // className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(10).find().forEach(function (currentItem, index) {
+          className('android.widget.RelativeLayou').depth(10).find().forEach(function (currentItem, index) {
                  currentItem.click();
           })
           break;
@@ -572,7 +581,8 @@ function excuteShortArticle(title, content) {
       // 如果超过30个选择默认
       if(add_address_counter>=30){
       console.info("------- [  添加默认地址参数 ] --------")  
-      className('android.widget.RelativeLayout').depth(10).find().forEach(function (currentItem, index) {
+   //   className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(10).find().forEach(function (currentItem, index) {
+      className('android.widget.RelativeLayou').depth(10).find().forEach(function (currentItem, index) {
         currentItem.click();;
       })
       }
@@ -584,16 +594,16 @@ function excuteShortArticle(title, content) {
       // })
 
       sleep(3000)
-      console.info("------- [  添加标题 : title ] --------",title.length)  
-      if(title.length>0 && title.length<19){
+      console.info("------- [  添加标题 : title ] --------",title)  
+      if(title !== null &&title.length>0 && title.length<19){
         console.info("------- [ 进入添加标题 ] --------")  
         sleep(3000)
-        className('android.widget.Button').depth(20).find().forEach(function (currentItem, index) {
+        className('android.widget.Button').depth(21).find().forEach(function (currentItem, index) {
           if (currentItem.desc() == "添加标题") {
             currentItem.click();
             // 进入地址选择页面
             sleep(1000);
-            className('android.widget.EditText').depth(19).find().forEach(function (Item, index) {
+            className('android.widget.EditText').depth(20).find().forEach(function (Item, index) {
               if (Item.text() == "填写标题会有更多赞哦（选填）") {
                 Item.setText(title);
               }
@@ -609,7 +619,7 @@ function excuteShortArticle(title, content) {
 
       console.info("------- [ 再次 推荐语 ] --------")
       sleep(4000)
-      className('android.widget.FrameLayout').depth(20).find().forEach(function (value, index) {
+      className('android.widget.FrameLayout').depth(21).find().forEach(function (value, index) {
         sleep(500)
         value.click();
         sleep(500)
@@ -627,152 +637,6 @@ function excuteShortArticle(title, content) {
       text("发布").findOne().click();
 
       return true;
-}
-
-
-/*************************************  [执行 文章 脚本] ******************************************************/
-
-function excuteLongArticle(title, content) {
-
-  console.info('..... [ 清除后台所有应用 ] ........');
-  clearApp()
-
-  sleep(8000);
-  console.info('..... [  打开今日头条 ] ........');
-  launchApp("今日头条");
-
-
-  console.info('..... [  打开首页 ] ........');
-  sleep(3000);
-  click("首页");
-
-
-sleep(8000);
- if(className("android.widget.Button").text("取消").exists()){
-    console.warn('..... [  界面出现了有未成的编辑的提示词 ] ........');
-    let unfinish_page_obj= text("取消").depth(5).findOne(1000);
-    unfinish_page_obj.click()
-  }
-
-
-  if(text("升级版本").depth(6).exists()){
-    console.warn('..... [  界面出现了软件升级提示词 ] ........');
-    let unfinish_page_obj= desc("关闭").depth(6).findOne(1000);
-    unfinish_page_obj.click()
-  }
-
-
-
-  console.info('..... [  点击 [我的]  ] ........');
-  sleep(3000);
-  click("我的");
-
-
-  sleep(3000);
-  if(!text("创作中心").depth(22).exists()){
-    console.error('..... [ 打开 [我的] 页面失败 ] ........');
-    return;
-  }
-
-
-
-  console.info('..... [  点击 [去发文]  ] ........');
-  sleep(4000);
-  if (className("android.widget.TextView").desc("去发文").exists()) {
-     click("去发文");
-  } else {
-    className("android.widget.ImageView").desc("发布").find().forEach(function (item, value) {
-      item.click()
-    });
-  }
-  
-
-  
-  sleep(4000);
-  if(!text("图片智能配文").depth(20).exists()){
-    console.error('..... [ 打开 [去发文] 页面失败 ] ........');
-    throw(" ..... [ 打开 [去发文] 页面失败 ] ........")
-  }
-
-
-
-    //点击【文章】tab 页面
-    sleep(4000);
-    let _long_article_tab = className('android.widget.FameLayout').depth(10).findOne(1000);
-    _long_article_tab.click();
-  
-  
-    // 把标题写入编辑框
-    console.info("....把标题写入编辑区......");
-    let _long_article_title_obj = className('EditText').depth(19).findOne(1000);
-    _long_article_title_obj.click();
-    sleep(1000);
-    _long_article_title_obj.setText(title);
-
-
-   // 把标题写入编辑框  1。分段插入图片
-   
-   sleep(3000);
-   console.info("....把内容写入编辑区......");
-   let _long_article_content_obj = className('EditText').depth(20).findOne(1000);
-   _long_article_content_obj.click();
-    sleep(1000);
-    _long_article_content_obj.setText(content);
-   
-
-
-    //【 文章最后，添加图片 】
-    console.info("....  [ 点击 添加图片的按钮，给文章内容添加图片 ]  ......");
-    sleep(3000);
-    let _long_article_add_img_btn = desc('添加图片').depth(17).findOne(1000);
-    _long_article_add_img_btn.click();
-
-
-  //
-  sleep(4000);
-  console.info("------- [ 打开相册，开始选择相册 ] --------")
-  // 全都选
-  desc('未选中').depth(15).find().forEach(function (value, index) {
-     value.click();
-  });
-
-
-
-  
-// 【点击】
-  sleep(4000);
-  console.info("------- [ 打开相册，选择相册完，点击 【完成】 按钮 ] --------")
-  className('Button').find().forEach(function (value, index) {
-    let d = value.desc();
-    if (d.includes("完成")) {
-        value.click();
-    }
-})
-
-
-
-
-   // 点击【下一步】
-   sleep(3000);
-   console.info("....点击 [  下一步   ]  按钮 ......");
-   let _long_article_next_btn = className('android.widget.Button').text('下一步').depth(11).findOne(1000);
-   _long_article_next_btn.click();
- 
-
-  // 点击【封面图片】
-
-  // 点击【添加地址】
-
-
-
-   // 点击【发布】
-   sleep(3000);
-   console.info("....点击[  发布 ]  按钮     ......");
-   let _long_article_publish_btn=text("发布").desc("发布").depth(11).findOne(1000);
-   _long_article_publish_btn.click()
-
-
-  return true;
 }
 
 

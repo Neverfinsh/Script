@@ -422,7 +422,7 @@ recents();
 
 sleep(3000);
 
-let _clear_box=id("clearbox").depth(7).findOne();66
+let _clear_box=id("clearbox").depth(7).findOne();
 let _clear_box_bounds=_clear_box.bounds()
 var x = _clear_box_bounds.centerX();
 var y = _clear_box_bounds.centerY();
