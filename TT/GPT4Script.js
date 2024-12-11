@@ -41,8 +41,8 @@ function getContentGPT(title, index){
     console.info('.....[ 设置好提问的问题 ] ........');
     let input_edit_text_obj= className("android.widget.EditText").depth(21).indexInParent(0).findOne()
     input_edit_text_obj.click()
-    sleep(2000);
-    input_edit_text_obj.setText("亲爱的哥哥，我想跟你说说我心里话，我会一直等你的，等你出现在我的生活中，走向幸福的彼岸。根据这句话的内容，以这句话作为开头并且换行，语言口语化。根据这句话，以第一人称的口吻，假设你是一31岁单身女性的角色，写一篇800字的短文，要求以第一人称的口吻，语言通俗易懂,段落清晰,语言口语化。");
+    sleep(2000); input_edit_text_obj.setText
+   ("亲爱的哥哥，我想跟你说说我心里话，我会一直等你的，等你出现在我的生活中，走向幸福的彼岸。根据这句话的内容，以这句话作为开头并且换行，语言口语化。根据这句话，以第一人称的口吻，假设你是一31岁单身女性的角色，写一篇800字的短文，要求以第一人称的口吻，语言通俗易懂,段落清晰,语言口语化。");
     
     
     sleep(2000);

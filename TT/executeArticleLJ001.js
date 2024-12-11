@@ -1,11 +1,3 @@
-/**
- * 
- * 重构页面脚本主要解决问题：
- * 
- *    怎么保证打开了正确应用，有可能网络问题，导致页面加载很慢，或者时在该页面弹出了其他页面或者广告
- *    优化them的页面
- * 
- */
 
 "ui";
 
@@ -14,9 +6,6 @@ const { info, error } = require("__console__");
 showLoalTask();
 console.hide();
 threads.start(setIntervalTask);
-
-//        log info warn  error ，全局模式方案
-var gloabModalType=false;
 
 
 function showLoalTask() {
@@ -65,7 +54,6 @@ function showLoalTask() {
    
     var runningScripts = engines.all();
     console.error("当前运行的脚本个数",runningScripts.length);
-
 
     var currentScriptName = engines.myEngine().source.toString();   // 获取当前脚本的名称 
     var runningScripts = engines.all();
@@ -145,7 +133,7 @@ function showLoalTask() {
 
 // 【 定时任务执行 】
 function setIntervalTask() {
-        setInterval(executeMain, 1 * 20 * 1000)
+         setInterval(executeMain, 1*60* 1000)
 }
 
 
@@ -158,30 +146,26 @@ function saveImg(imgUrl) {
   // 使用split()函数将路径字符串分割成数组
   var pathArray = imgUrl.split("/");
   
-  // 获取数组中最后一个元素作为图片名称
-  var imageNameStr = pathArray[pathArray.length - 1];
 
-  var reg =/[\u4e00-\u9fa5]/g;
-  // 去除中文
- // var imageName = imageNameStr.replace(reg, "").replace("_")
+  // 时间挫作为名称
   var imageName = new Date().getTime();
-
   
   // 打印图片名称
-  console.log(imageName);
+  console.log("imageName"+imageName);
   
   var img = images.load(imgUrl);
-  
+
+
   let pathURL= "/sdcard/DCIM/Camera/" + "IMG_"+imageName+".jpg"
   // 保存图片到相册
   var saved = images.save(img, "/sdcard/DCIM/Camera/" + "IMG_"+imageName+".jpg");
   
-    
    //保存图片
    // im.saveTo(path);
 
     //把图片加入相册
     media.scanFile(pathURL);
+
 
   // 检查保存是否成功
   if (saved) {
@@ -191,79 +175,11 @@ function saveImg(imgUrl) {
   }
   
   }
-  function clearAllImg(){
-  
-  
-  clearApp();
 
-  sleep(3000);
-
-  launchApp("图库");
-
-  consoleLogSlee("点击【相册】按钮,进入相册的所有页面",3000);
-  let _all_img= className('android.widget.LinearLayout').depth(12).indexInParent(1).childCount(2).findOne();
-  _all_img.click();
-
-
-  consoleLogSlee("进入相册的【所有页面】",3000);
-  className('ImageView').find().forEach(function(item,index){
-    item.click();
-    sleep(1000);
-    let _all_delete_btn=desc("删除").className('TextView').depth(5).findOne();
-        _all_delete_btn.click();
-          // 删除//对话框
-    sleep(1000);
-    let _del_dialogue=text("删除").className('android.widget.Button').indexInParent(1).depth(6).findOne();
-    //console.log('....._del_dialogue......',_del_dialogue);
-    _del_dialogue.click()
-    sleep(1000);
-  });
-
-   clearApp();
-
-   exit();
-}
 
 
 
 /* **********************************  [    删除图片      ]   ************************************************* */
-
-function clearAllImg(){
-  clearApp();
-  sleep(3000);
-  launchApp("图库");
-
-  consoleLogSlee("点击【相册】按钮,进入相册的所有页面",3000);
-  let _all_img= className('android.widget.LinearLayout').depth(12).indexInParent(1).childCount(2).findOne();
-  _all_img.click();
-
-
-  consoleLogSlee("进入相册的【所有页面】",3000);
-  className('ImageView').find().forEach(function(item,index){
-    item.click();
-    sleep(1000);
-    let _all_delete_btn=desc("删除").className('TextView').depth(5).findOne();
-        _all_delete_btn.click();
-          // 删除//对话框
-    sleep(1000);
-    let _del_dialogue=text("删除").className('android.widget.Button').indexInParent(1).depth(6).findOne();
-    //console.log('....._del_dialogue......',_del_dialogue);
-    _del_dialogue.click()
-    sleep(1000);
-  });
-
-   clearApp();
-
-   exit();
-
-
-}
-
-
-
-/* **********************************  [    删除图片      ]   ************************************************* */
-
-
 
 function delBeforImg(){
   let folderPath = "/sdcard/DCIM/Camera/"; // 指定文件夹路径
@@ -341,24 +257,39 @@ function executeMain() {
  let taskArr = taskRes.res;
  let titleArticleImg  = []
      titleArticleImg  = taskArr.imgList
+    
+  console.log('.....titleArticleImg......',titleArticleImg);
 
-  //  删除手机里面久的图片 
-  var delflag= delBeforImg()
-  if(delflag){
-    console.log('......[   删除旧的图片成功    ]..........');
+  try {
+      //  删除手机里面久的图片 
+      var delflag= delBeforImg()
+      if(delflag){
+         console.log('......[   删除旧的图片成功    ]..........');
+        }
+  } catch (error) {
+         console.error('......[   删除旧的图片失败    ]..........');
+         return;
   }
 
-  //  保存图片到相册
-  for(let i=0;i<titleArticleImg.length;i++){
-       saveImg(titleArticleImg[i])
+
+  try {
+      //  保存图片到相册
+    for(let i=0;i<titleArticleImg.length;i++){
+        saveImg(titleArticleImg[i])
+    }
+  } catch (error) {
+         console.error('......[   保存图片到相册失败    ]..........');
+         return;
   }
+  
+
 
   sleep(4000)
   let articleId = resObj.id
   let titleArticle = taskArr.articleTitle
   let contentArticle = taskArr.articleContent
 
-  console.warn(".........【 开始发送发布文章内容:titleArticle 】.............",titleArticle);
+  //console.warn(".........【 开始发送发布文章内容:titleArticle 】.............",titleArticle);
   try {
     const flag= excuteArticle(titleArticle,contentArticle);
     if(!flag){
@@ -400,43 +331,23 @@ function excuteArticle(title, content) {
       launchApp("今日头条");
 
 
-      console.info('..... [  打开头条 ] ........');
-      sleep(8000);
-    //  let tt_tab_obj= className("android.widget.RelativeLayout").depth(9).indexInParent(0).childCount(1).findOne(1000)
-      //tt_tab_obj.click()
-    // click("头条");
-     let tt_tab_obj =className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(9).indexInParent(0).childCount(1).findOne(1000);
-     tt_tab_obj.click();
-
-    sleep(8000);
-     if(className("android.widget.Button").text("取消").exists()){
-        console.warn('..... [  界面出现了有未成的编辑的提示词 ] ........');
-        let unfinish_page_obj= text("取消").depth(5).findOne(1000);
-        unfinish_page_obj.click()
-      }
-
-
-      if(text("升级版本").depth(6).exists()){
-        console.warn('..... [  界面出现了软件升级提示词 ] ........');
-        let unfinish_page_obj= desc("关闭").depth(6).findOne(1000);
-        unfinish_page_obj.click()
-      }
-
- 
-
-      let me_tab_obj =className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(9).indexInParent(3).childCount(2).findOne(1000);
-      me_tab_obj.click();
-      //console.info('..... [  点击 [我的]  ] ........');
-      //sleep(10000);
-     // click("我的");
     
+      sleep(8000);
+      console.info('..... [  打开头条Tab ] ........');
+    //  let tt_tab_obj= className("android.widget.RelativeLayout").depth(9).indexInParent(0).childCount(1).findOne(1000)
+      let tt_tab_obj =className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(9).indexInParent(0).childCount(1).findOne(1000);
+      tt_tab_obj.click();
 
-      sleep(3000);
-      if(!text("创作中心").depth(22).exists()){
-        console.error('..... [ 打开 [我的] 页面失败 ] ........');
-        return;
-      }
-   
+      sleep(8000);
+      console.info('..... [  打开 [我的] Tab ] ........');
+      let me_tab_obj =className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(9).indexInParent(3).childCount(2).findOne(1000);
+      console.log('.....me_tab_obj......',me_tab_obj);
+      let me_tab_obj_bounds = me_tab_obj.bounds()
+      let x = me_tab_obj_bounds.centerX();
+      let y = me_tab_obj_bounds.centerY();
+      click(x, y);
+
+    //  me_tab_obj.click();
 
 
       console.info('..... [  点击 [去发文]  ] ........');
@@ -450,16 +361,6 @@ function excuteArticle(title, content) {
       }
       
 
-      
-      // sleep(4000);
-      // if(!text("图片智能配文").depth(20).exists()){
-      //   console.error('..... [ 打开 [去发文] 页面失败 ] ........');
-      //   throw(" ..... [ 打开 [去发文] 页面失败 ] ........")
-      // }
-
-
-
-      
       // 找到对应的控件消息
       console.info("....把内容写入编辑区......");
       sleep(4000);
@@ -501,16 +402,13 @@ function excuteArticle(title, content) {
       // 新版本
       console.info("------- [ 选择图片新版本的要求 ] --------,",finish_Flag)
       if(!finish_Flag){
-       // 
-       let finsh_btn= className('android.widget.LinearLayout').depth(14).indexInParent(1).findOne(1000)
-       finsh_btn.click()
-       
-        // 
+
+
+      let finsh_btn= className('android.widget.LinearLayout').depth(14).indexInParent(1).findOne(1000)
+      finsh_btn.click()
       //  let finsh_detail_btn= text("完成").depth(12).indexInParent(2).findOne(1000)
       //  finsh_detail_btn.click()
       }
-
-
 
 
     
@@ -523,78 +421,8 @@ function excuteArticle(title, content) {
       })
 
 
-      // 添加位置
-      console.info("------- [  添加地址 ] --------")
-      sleep(6000);
-      const addressObj=desc("添加位置").className('android.widget.Button').depth(21).findOne(1000);
-      addressObj.click();
-
-
-
-      sleep(5000);
-
-      console.info("------- [  添加地址，选择位置参数 ] --------")  
-    
-      let add_address_counter=0
-
-      while(add_address_counter<30){
-        
-         add_address_counter++;
-        
-         let add_adress_list_obj_arr=[]
-
-         add_adress_list_obj_arr=className('android.widget.RelativeLayout').depth(10).find();
-      //   add_adress_list_obj_arr=className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(10).find();
-         console.info("------- [  选择添加地址参数列表数组大小: ] --------",add_adress_list_obj_arr.length)
-    
-
-         // 验证值是否大于7的时候。
-         console.info("------- [  开始选择添加地址,次数: ] --------",add_address_counter)
-         if(add_adress_list_obj_arr.length > 2){
-             var randomIndex = Math.floor(Math.random()*(7-1)+1);
-             console.info("------- [  选择添加地址参数： ] --------",randomIndex)
-            // className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(10).find().forEach(function (currentItem, index) {
-             className('android.widget.RelativeLayout').depth(10).childCount(2).find().forEach(function (currentItem, index) {
-              console.log('.....item......',index);
-              console.log('.....randomIndex......',randomIndex);
-              if (index == randomIndex) {
-                    currentItem.click();
-                }
-             })
-             break;
-        }
-        if(add_adress_list_obj_arr.length === 2){
-          console.info("------- [  选择添加地址参数： ] --------",randomIndex)
-         // className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(10).find().forEach(function (currentItem, index) {
-          className('android.widget.RelativeLayou').depth(10).find().forEach(function (currentItem, index) {
-                 currentItem.click();
-          })
-          break;
-     }
-        // 休息2秒
-        sleep(2000)
-      }
-      
-
-
-
-      // 如果超过30个选择默认
-      if(add_address_counter>=30){
-      console.info("------- [  添加默认地址参数 ] --------")  
-   //   className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(10).find().forEach(function (currentItem, index) {
-      className('android.widget.RelativeLayou').depth(10).find().forEach(function (currentItem, index) {
-        currentItem.click();;
-      })
-      }
-
-      // className('android.widget.RelativeLayout').depth(10).find().forEach(function (currentItem, index) {
-      //   if (index == randomIndex) {
-      //        currentItem.click();;
-      //   }
-      // })
-
       sleep(3000)
-      console.info("------- [  添加标题 : title ] --------",title)  
+     // console.info("------- [  添加标题 : title ] --------",title)  
       if(title !== null &&title.length>0 && title.length<19){
         console.info("------- [ 进入添加标题 ] --------")  
         sleep(3000)
@@ -611,11 +439,9 @@ function excuteArticle(title, content) {
           }
         })
       }else{
-        console.error("....【 标题超过了19个字 】.....",title);
+        console.error("....【 标题超过了19个字不设置标题 】.....");
       }
       
-
-
 
       console.info("------- [ 再次 推荐语 ] --------")
       sleep(4000)
@@ -626,13 +452,9 @@ function excuteArticle(title, content) {
       })
 
 
-
-  
-
-
       //选择完图片后，进行发布
       sleep(3000)
-      console.info("-------  点击 [  发布 ]  按钮[发布中...]--------")
+      console.info("-------  [ 点击  [  发布 ]  按钮[发布中...]--------")
      // text("发布").depth(14).findOne().click();
       text("发布").findOne().click();
 
@@ -642,14 +464,16 @@ function excuteArticle(title, content) {
 
 
 
+
 function clearApp() {
   recents();
   sleep(3000);
-  if(desc("清除").depth(7).exists()){
-    let _clear_box =  desc("清除").depth(7).findOne(1000)
+
+  if(desc("关闭所有最近打开的应用").depth(6).exists()){
+    let _clear_box =  desc("关闭所有最近打开的应用").depth(6).findOne(1000)
     _clear_box.click();
   }else{
-      let _clear_box = id("clear_button").depth(6).findOne(); 
+      let _clear_box = id("clearbox").depth(7).findOne(); 
       let _clear_box_bounds = _clear_box.bounds()
       var x = _clear_box_bounds.centerX();
       var y = _clear_box_bounds.centerY();
@@ -658,24 +482,3 @@ function clearApp() {
 
   sleep(4000);
 }
-
-
-
-// function clearApp() {
-//   recents();
-//   sleep(3000);
-
-//   if(desc("关闭所有最近打开的应用").depth(6).exists()){
-//     let _clear_box =  desc("关闭所有最近打开的应用").depth(6).findOne(1000)
-//     _clear_box.click();
-//   }else{
-//       let _clear_box = id("clearbox").depth(7).findOne(); 
-//       let _clear_box_bounds = _clear_box.bounds()
-//       var x = _clear_box_bounds.centerX();
-//       var y = _clear_box_bounds.centerY();
-//       click(x,y);
-//   }
-
-//   sleep(4000);
-// }
-

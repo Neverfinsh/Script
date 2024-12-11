@@ -3,7 +3,6 @@
 showLoalTask();
 console.hide();
 threads.start(setIntervalTask);
-
 //log info warn  error ，全局模式方案
 var gloabModalType = false;
 
@@ -117,7 +116,7 @@ function showLoalTask() {
 
 // 【 定时任务执行 】
 function setIntervalTask() {
-  setInterval(executeMain, 60 * 1000)
+  setInterval(executeMain, 2 * 1000)
 }
 
 
@@ -140,6 +139,7 @@ function executeMain() {
 
 
 
+
   var url = "http://101.201.33.155:8099/topicKey/script/findTopicOne";
   var r = http.get(url);
   var result = r.body.string();
@@ -157,22 +157,6 @@ function executeMain() {
   let countentSuccess=[]
       countentSuccess = excuteAritcle(taskResult)
 
-  /**
-   * [
-    {
-        "name": "尊重他人，就能获得更多尊重",
-        "userId": "",
-        "deviceId": "",
-        "topicKeyId": "12",
-        "topicDetail": "个人兴趣爱好和业余活动。",
-        "topicDetailComplete": "个人兴趣爱好和业余活动。根据这个设定，以第一人称的口吻，写一篇300字的短文，语言通俗易懂，情感要真实 ，不要带有第一话",
-        "status": "1",
-        "type": 1,
-        "remark": "测试321",
-        "createTime": "15:56:01"
-    }
-
-   */
   // 把 countentSuccess[]存入的数据库中
   let name = taskResult.name
   let userId = taskResult.userId
@@ -180,11 +164,9 @@ function executeMain() {
   let topicKeyId=taskResult.id
 
   let topicDeTailArr=[]
-  for(let i=0;i<countentSuccess++;i++){
+  for(let i=0;i<countentSuccess.length;i++){
       let topicDeTail={}
       topicDeTail.name=name
-      topicDeTail.userId=userId
-      topicDeTail.deviceId=deviceId
       topicDeTail.topicKeyId=topicKeyId
       topicDeTail.topicDetail=countentSuccess[i]
       //TODO: 模板
@@ -192,27 +174,30 @@ function executeMain() {
       topicDeTail.status=0
       topicDeTail.type=1
       topicDeTail.remark=""
-      topicDeTail.createTime=new Date()
+      topicDeTail.createTime=formateDateUtil()
+      topicDeTail.userId=userId
       topicDeTailArr.push(topicDeTail)
   }
 
-  console.info('.....[   存入topicDetail 的接口请求参数    ]........',topicDeTailArr);
-  
-  var add_top_detail_url = `http://101.201.33.155:8099//topic/detail/script/addTopicDetail`;
+  console.info('.....[   存入topicDetail 的接口请求参数    ]........',JSON.stringify(topicDeTailArr));
+  var add_top_detail_url = `http://101.201.33.155:8099/topic/detail/script/addTopicDetail`;
   const add_top_detail_result = http.postJson(add_top_detail_url,topicDeTailArr);
   const add_top_detail_result_json = JSON.parse(add_top_detail_result.body.string());
   console.info('.....[   存入topicDetail 的接口,返回值  ]........', add_top_detail_result_json);
 
-  if (add_top_detail_result_json.code === 1) {
-    console.info('.....[   批量插入topicDetail成功    ]........');
-    console.info('.....[   开始更新topicKey 的状态    ]........',topicDeTailArr);
+  if (add_top_detail_result_json.code === 0) {
+    console.info('.....[   批量插入topicDetail成功    ]........',add_top_detail_result_json);
+    console.info('.....[   开始更新topicKey 的状态    ]........');
 
-    const update_top_key_statu_url = `http://101.201.33.155:8099//topic/detail//web/updateTopicDetail`;
-    const update_top_key_statu_param=taskRes
+    const update_top_key_statu_url = `http://101.201.33.155:8099/topicKey/web/updateTopic`;
+    let update_top_key_statu_param=taskRes.res
+
+
     update_top_key_statu_param.status=1
     const update_top_key_statu_result = http.postJson(update_top_key_statu_url,update_top_key_statu_param);
     const update_top_key_statu_result_json = JSON.parse(update_top_key_statu_result.body.string());
-    if (update_top_key_statu_result_json.code === 1) {
+    console.info('.....[   更新topicKey 的接口,返回值  ]........', update_top_key_statu_result_json);
+    if (update_top_key_statu_result_json.code === 0) {
          console.info('.....[   开始更新topicKey 的结果信息   ]........',update_top_key_statu_result_json);
          console.info('.....[   开始更新topicKey 的状态成功    ]........',update_top_key_statu_result_json);
     }
@@ -238,7 +223,7 @@ function getContentWithTopicKey(title) {
   // 打开页面
   app.startActivity({
     action: "android.intent.action.VIEW",
-    data: "https://chat18.aichatos.xyz/"
+    data: "https://chat18.aichatos8.com/"
   });
 
   // 等待浏览器加载完成
@@ -256,7 +241,7 @@ function getContentWithTopicKey(title) {
   className("android.widget.Button").find().forEach(function (value, index) {
     if (value.depth() == 25) {
       if (value.indexInParent() == 3) {
-        value.click()
+          value.click()
       }
     }
   })
@@ -272,18 +257,14 @@ function getContentWithTopicKey(title) {
       
       className("android.widget.TextView").depth(31).find().forEach(function (currentItem, index) {
         let itemContent = currentItem.text();
-        console.log('.....itemContent......',itemContent);
         arr.push(itemContent)
       });
       
-
       console.log("....获取chatGPT的内容 arr ....:....", arr);
-
       // 处理结果
       for (let i = 0; i < arr.length; i++) {
            content += arr[i];
       }
-      // 加载完
       break;
     }
 

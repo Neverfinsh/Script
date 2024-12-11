@@ -1,4 +1,5 @@
 
+console.info('.....  清除所有的后台应用 ........');
 clearApp()
 
 sleep(2000);

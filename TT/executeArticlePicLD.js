@@ -632,11 +632,6 @@ function excuteArticle(title, content) {
 function clearApp() {
   recents();
   sleep(3000);
-
-
-
-
-
   if(desc("清除").depth(7).exists()){
     let _clear_box =  desc("清除").depth(7).findOne(1000)
     _clear_box.click();

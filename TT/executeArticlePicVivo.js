@@ -400,7 +400,7 @@ function excuteArticle(title, content) {
       launchApp("今日头条");
 
 
-      console.info('..... [  打开头条 ] ........');
+      console.info('..... [  点击头条 ] ........');
       sleep(8000);
     //  let tt_tab_obj= className("android.widget.RelativeLayout").depth(9).indexInParent(0).childCount(1).findOne(1000)
       //tt_tab_obj.click()
@@ -424,18 +424,20 @@ function excuteArticle(title, content) {
 
  
 
+      console.info('..... [  点击 [我的]  ] ........');
+   //   let me_tab_obj =className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(9).indexInParent(3).childCount(2).findOne(1000);
       let me_tab_obj =className('com.bytedance.platform.raster.viewpool.cache.compat.MeasureOnceRelativeLayout2').depth(9).indexInParent(3).childCount(2).findOne(1000);
       me_tab_obj.click();
-      //console.info('..... [  点击 [我的]  ] ........');
+
       //sleep(10000);
      // click("我的");
     
 
-      sleep(3000);
-      if(!text("创作中心").depth(22).exists()){
-        console.error('..... [ 打开 [我的] 页面失败 ] ........');
-        return;
-      }
+      // sleep(3000);
+      // if(!text("创作中心").depth(22).exists()){
+      //   console.error('..... [ 打开 [我的] 页面失败 ] ........');
+      //   return;
+      // }
    
 
 

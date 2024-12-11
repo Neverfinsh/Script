@@ -18,7 +18,7 @@ function showLoalTask() {
           <switch id="model_switch" checked="false" thumbTint="gray/orange-800" trackTint="light-gray/orange-200" marginEnd="16"></switch>
         </linear>
         <linear marginTop="30">
-          <button id="them_to_article_btn" bg="#8acfaa" text="生成文章" marginLeft="35" h="38" />
+          <button id="them_to_article_btn" bg="#8acfaa" text="生成ChatGPT文章" marginLeft="35" h="38" />
           <button id="clearn_localstorage_btn" bg="#ffe63d" text="清除本地缓存" marginLeft="15" h="38" />
           <button id="stop_all_script_btn" bg="#ffe63d" text="停止脚本运行" marginLeft="15" h="38" />
         </linear>
@@ -224,7 +224,7 @@ function excuteAritcle(taskResult) {
     }
     // test
 
-
+ 
     if (content === "false") {
       console.error(".... 获取[内容]错误.......");
       continue;
@@ -241,7 +241,7 @@ function excuteAritcle(taskResult) {
     articleVo.articleContent = content
     articleVo.uid = uid
     articleVo.deviceId = deviceId
-
+    articleVo.themId=taskResult.id
 
     // TODO:  在当前的时间里面:往后相加10分钟
      let newArticleSendTime = nextDateUtil(index,articleSendTime);
@@ -283,7 +283,7 @@ function getContentWithTitle(title, index) {
   // 打开页面
   app.startActivity({
     action: "android.intent.action.VIEW",
-    data: "https://chat18.aichatos.xyz/"
+    data: "https://chat18.aichatos8.com/"
   });
 
 

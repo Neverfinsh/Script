@@ -1,11 +1,3 @@
-/**
- * 
- * 重构页面脚本主要解决问题：
- * 
- *    怎么保证打开了正确应用，有可能网络问题，导致页面加载很慢，或者时在该页面弹出了其他页面或者广告
- *    优化them的页面
- * 
- */
 
 "ui";
 
@@ -14,10 +6,6 @@ const { info, error } = require("__console__");
 showLoalTask();
 console.hide();
 threads.start(setIntervalTask);
-
-//        log info warn  error ，全局模式方案
-var gloabModalType=false;
-
 
 function showLoalTask() {
 
@@ -65,7 +53,6 @@ function showLoalTask() {
    
     var runningScripts = engines.all();
     console.error("当前运行的脚本个数",runningScripts.length);
-
 
     var currentScriptName = engines.myEngine().source.toString();   // 获取当前脚本的名称 
     var runningScripts = engines.all();
@@ -145,7 +132,7 @@ function showLoalTask() {
 
 // 【 定时任务执行 】
 function setIntervalTask() {
-        setInterval(executeMain, 1 * 20 * 1000)
+         setInterval(executeMain, 60* 1000)
 }
 
 
@@ -191,79 +178,11 @@ function saveImg(imgUrl) {
   }
   
   }
-  function clearAllImg(){
-  
-  
-  clearApp();
 
-  sleep(3000);
-
-  launchApp("图库");
-
-  consoleLogSlee("点击【相册】按钮,进入相册的所有页面",3000);
-  let _all_img= className('android.widget.LinearLayout').depth(12).indexInParent(1).childCount(2).findOne();
-  _all_img.click();
-
-
-  consoleLogSlee("进入相册的【所有页面】",3000);
-  className('ImageView').find().forEach(function(item,index){
-    item.click();
-    sleep(1000);
-    let _all_delete_btn=desc("删除").className('TextView').depth(5).findOne();
-        _all_delete_btn.click();
-          // 删除//对话框
-    sleep(1000);
-    let _del_dialogue=text("删除").className('android.widget.Button').indexInParent(1).depth(6).findOne();
-    //console.log('....._del_dialogue......',_del_dialogue);
-    _del_dialogue.click()
-    sleep(1000);
-  });
-
-   clearApp();
-
-   exit();
-}
 
 
 
 /* **********************************  [    删除图片      ]   ************************************************* */
-
-function clearAllImg(){
-  clearApp();
-  sleep(3000);
-  launchApp("图库");
-
-  consoleLogSlee("点击【相册】按钮,进入相册的所有页面",3000);
-  let _all_img= className('android.widget.LinearLayout').depth(12).indexInParent(1).childCount(2).findOne();
-  _all_img.click();
-
-
-  consoleLogSlee("进入相册的【所有页面】",3000);
-  className('ImageView').find().forEach(function(item,index){
-    item.click();
-    sleep(1000);
-    let _all_delete_btn=desc("删除").className('TextView').depth(5).findOne();
-        _all_delete_btn.click();
-          // 删除//对话框
-    sleep(1000);
-    let _del_dialogue=text("删除").className('android.widget.Button').indexInParent(1).depth(6).findOne();
-    //console.log('....._del_dialogue......',_del_dialogue);
-    _del_dialogue.click()
-    sleep(1000);
-  });
-
-   clearApp();
-
-   exit();
-
-
-}
-
-
-
-/* **********************************  [    删除图片      ]   ************************************************* */
-
-
 
 function delBeforImg(){
   let folderPath = "/sdcard/DCIM/Camera/"; // 指定文件夹路径
@@ -640,16 +559,15 @@ function excuteArticle(title, content) {
 }
 
 
-
-
 function clearApp() {
   recents();
   sleep(3000);
-  if(desc("清除").depth(7).exists()){
-    let _clear_box =  desc("清除").depth(7).findOne(1000)
+
+  if(desc("关闭所有最近打开的应用").depth(6).exists()){
+    let _clear_box =  desc("关闭所有最近打开的应用").depth(6).findOne(1000)
     _clear_box.click();
   }else{
-      let _clear_box = id("clear_button").depth(6).findOne(); 
+      let _clear_box = id("clearbox").depth(7).findOne(); 
       let _clear_box_bounds = _clear_box.bounds()
       var x = _clear_box_bounds.centerX();
       var y = _clear_box_bounds.centerY();
@@ -658,24 +576,4 @@ function clearApp() {
 
   sleep(4000);
 }
-
-
-
-// function clearApp() {
-//   recents();
-//   sleep(3000);
-
-//   if(desc("关闭所有最近打开的应用").depth(6).exists()){
-//     let _clear_box =  desc("关闭所有最近打开的应用").depth(6).findOne(1000)
-//     _clear_box.click();
-//   }else{
-//       let _clear_box = id("clearbox").depth(7).findOne(); 
-//       let _clear_box_bounds = _clear_box.bounds()
-//       var x = _clear_box_bounds.centerX();
-//       var y = _clear_box_bounds.centerY();
-//       click(x,y);
-//   }
-
-//   sleep(4000);
-// }
 
